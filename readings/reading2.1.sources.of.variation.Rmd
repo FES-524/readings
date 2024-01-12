@@ -120,6 +120,56 @@ We will be discussing fixed versus random effects more extensively throughout th
 
 In some studies, there may be sources of variation caused by subsampling within the replicates of a study. You may see these referred to as pseudoreplicates or subsamples.  For example, if a protocol is assigned to the stand level but we measure multiple trees within each stand, the trees are pseudoreplicates. This sort of source of variation could be treated as an additional random effect in analysis, since it's not relevant to the research question.  However, since the protocol was applied overall to the replicates, we could also average over the subsamples and work on the scale of the replicate.  This simplifies the analysis and, generally speaking, does not change any results.
 
+## Minimize unexplained variation
+
+When we are designing a study, one important goal is to minimize unexplained variation.  Unexplained variation should be small so that we can reasonably estimate any changes/differences of interest with precision.  If we fail to minimize variation we may find ourselves in a scenario where our estimated differences in means are large enough to seem practically important but we have so much variation that the plausible values for the true difference encompass a huge range of values and so the results are inconclusive.
+
+We should always spend a lot of time thinking about sources of variation prior to collecting data.  Sources of variation will drive the study design and can be potentially controlled within the study design.  For example, blocked designs, which we will discuss next week, are designed specifically to help control one source of unexplained variation.  Another way to minimize unexplained variation is to collect information on continuous variables (i.e., covariates) that we believe will cause variation in the response variable and will need to be accounted for in any analysis.  Which covariates will be collected must be defined during the design stage of a study.  Finally, limiting the scope of inference, as discussed last week, can also limit unexplained variation.
+
+Unexplained sources of variation are considered limitations to a study and should be discussed in the conclusions section of a manuscript.  If, for example, investigators failed to collect data on an important covariate, they should discuss this and recommend that future research be designed in a way to mitigate the effect of that covariate. They should also acknowledge that including the missing covariate in the model could drastically change their results, so future research that comes to a different conclusion may be due to accounting for the effect of the missing covariate in the model.
+
+# Statistical model
+
+In this class, when I talk about a statistical model I mean the theoretical model that defines how we believe the response variable was generated.  The statistical model is written in mathematical notation and defines all assumptions of the model.  We will see examples of the mathematical notation in class but I will not ask you to write the notation on assignments.  Instead you will describe the statistical model in words.
+
+If the statistical model we choose is a poor approximation of how the response variable is generated (i.e., the data-generating process), results from that analysis based on that statistical model will not do a good job of addressing the research question or improving our understanding of the science in our field.
+
+## Basis of the statistical model
+
+The statistical model is based on the research question/goals and elements of the study design.  
+
+- The research question tells us the question of interest that the model needs to address and, in a regression context, defines the response variable of interest.
+
+- The known sources of variation tell us which variables need to be in model in order to minimize variation.
+
+- The study design helps define the structure of the statistical model based on how the protocol of interest was applied and the replicates of that protocol.
+
+## Types of research goals
+
+The same statistical methods may be used for different research goals. Research goals generally fall into three categories:
+
+1. Exploratory
+
+2. Confirmatory
+
+3. Predictive
+
+Regression is a perfect example of how the same overall methodology and framework can be used for any of these research goals. For example, I can use multiple regression to explore which of a set of variable might be related to my response. I can also use regression to test for differences in means among groups from an experiment, testing *a priori* hypotheses about how the treatments drive differences in the response, on average (confirmatory research). Finally, I can use a linear model to predict unseen outcomes based on measured or hypothetical values of the explanatory variable. However, we usually cannot accomplish all these goals with one dataset and analysis (despite common statistical frameworks) without violating some statistical assumptions or dealing with suboptimal approaches for one or two of the goals. In other words, there is a tradeoff, and clearly defining your objective before you start an analysis is necessary to choose a good approach. We will get into this more when we discuss variable selection later in the course.
+
+## The statistical model defines analysis
+
+The statistical model, whether we formally write it in mathematical notation or describe it, is the basis for the actual analysis.  We must have an idea of what the statistical model is before we can choose an appropriate analysis and fit a model with software.  
+
+# Language about response variables
+
+Sometimes we end up working with complicated response variables.  This is particularly true when we average over subsamples to work on the scale of the replicate of some protocol.  In this case, our response variable is an average.
+
+When describing the results of an averaged response variable we will end up talking about differences in "mean average response variable".  This is perfectly appropriate, but can feel a little awkward.  If you want to avoid that sort of language you can define a term to use for the averaged response variable early in your manuscript and use it throughout the rest of the paper.  Be careful to be consistent; don't go back and forth using multiple terms to refer to the same response variable.
+
+Example language defining a new term:
+ 
+> "This averaged 5-year diameter growth will be referred to as the site growth increment throughout this paper."
+
 
 
 
