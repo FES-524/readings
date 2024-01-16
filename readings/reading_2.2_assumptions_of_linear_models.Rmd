@@ -7,6 +7,7 @@ date: "2024-01-15"
 urlcolor: cyan
 linkcolor: blue
 toccolor: blue
+bibliography: ../references.bib
 header-includes:
     \usepackage{bm}
 ---
@@ -227,7 +228,7 @@ box1 <- qplot(y = rnorm(20), geom = "boxplot") +
     ggtitle("a) Symmetric") +
     ylab("Residuals")
 
-box2 <- qplot(y = rlnorm(20) - 1, geom = "boxplot") +
+box2 <- qplot(y = rlnorm(20, sdlog = 2) - 1, geom = "boxplot") +
     theme_bw() +
     ggtitle("b) Long right tail") +
     ylab("Residuals")
@@ -236,5 +237,44 @@ box1 + box2
 ```
 
 
+# Reporting results
 
+Once you have a model that you have deemed to have reasonably met all assumptions, you can report results from that model (note that we are assuming the "adjustments" we made to the model do not include variable selection steps, but rather adjustments to how the errors are modeled). These should include estimates and confidence intervals to answer all questions of interest.  Results can also include $p$-values from hypothesis tests, although this is not required and should only be used in a thoughtful way (see for example @wasserstein2016_pvals, @wasserstein2019_beyond_pvals).
 
+## Hypothesis tests
+
+Overall tests of default null hypotheses are generally not particularly interesting. For example, remember that in a separate means model the overall null hypothesis is very coarse:
+
+$H_0$: All group means are the same
+
+$H_A$: At least one of the group means is different than the others
+
+In addition, tests of hypotheses are done by assuming the null hypothesis is true.  Many times we have designed a study because we think our protocol has an effect.  We likely wouldn't waste time or money if we didn't think there was an effect *a priori*!
+
+Another difficulty with hypothesis tests is how to interpret a large $p$-value.  If you are using Fisherian hypothesis tests, you can never conclude that that the null hypothesis is true (note that you cannot conclude that the alternative hypothesis is true based on a null hypothesis test either).  Supposedly, Sir Ronald Fisher, when asked how to interpret a large p-value, said "Get more data" ([citation](https://www.fharrell.com/post/errmed/)).  
+
+Issues with using p-values have been and continue to be much discussed throughout the statistics community and the topic of p-values is something we will revisit throughout the term.  A good place to start in understanding p-values is the "ASA statement on statistical significance and p-values" [@wasserstein2016_pvals].
+
+Throughout this course, we will practice using appropriate language for reporting statistics.
+
+## Estimates and confidence intervals
+
+Plan on reporting estimates and confidence intervals for all comparisons or effects of interest.  A common mistake is to only report confidence intervals for those comparisons that have small $p$-values, but this is not good statistical practice.  See principles 3, 5, and 6 of the ASA’s statement on $p$-values.
+
+I generally subscribe to the idea of thinking of confidence intervals as compatibility intervals, which are interpreted as the set of values that could plausibly be the "true effect" given the data at hand and the modeling assumptions.  This is a slightly inaccurate interpretation of a confidence interval *per se*, but is useful in practice. Check out this short blog post about this from one of the leading thinkers in statistics: [https://statmodeling.stat.columbia.edu/2022/04/05/confidence-intervals-compatability-intervals-uncertainty-intervals/](https://statmodeling.stat.columbia.edu/2022/04/05/confidence-intervals-compatability-intervals-uncertainty-intervals/).
+
+I would generally not recommend you report the confidence interval and then use it as a hypothesis test by checking if the null value is in the interval (despite the fact that many expressions for confidence intervals are derived by *inverting* a hypothesis test).  If you want to do a hypothesis test, go ahead and report a $p$-value (along with the other relevant information of the test, e.g., degrees of freedom). After all, that's what null hypothesis testing was designed for. When you report confidence intervals, focus on the values in the confidence interval as a way to discuss if plausible values for the estimate are *practically* important.
+
+## Making conclusions
+
+The primary focus when making conclusions based on the statistical results should be on practical importance.  Too often investigators skip defining what value would indicate practical importance and instead focus on the null value (0 for linear models).  Few differences are exactly 0, and results cannot be interpreted into scientific findings without some idea of what an important difference might be.  You will define a practically important value to use in the conclusions from the analysis you do for your final project.  Every assignment example has a practically important difference defined to use when making conclusions.
+
+Some sort of graphic should be used to support the conclusions in most cases.  This graphic should be "stand-alone", meaning everything in the graphic is defined in the caption.
+
+## Limitations
+
+The limitations of a study involve things that may have gone wrong in the current study as well as recommendations on things to change for future studies.  Limitations could involve, e.g., limitations on inference and concerns about making management recommendations on a single small study.  For example, the scope of inference could be a limitation if it is very narrow.
+
+We will practice identifying and discussing limitations throughout the course.
+
+# References
