@@ -1,0 +1,122 @@
+---
+title: "FES 524: Natural Resources Data Analysis"
+subtitle: "Reading 3.2: Multiple comparisons and power"
+output:
+    bookdown::pdf_document2
+toc: true
+toccolor: blue
+urlcolor: cyan
+linkcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.show = 'hold')
+```
+
+# Multiple comparisons
+
+This week we will do a quick review of the issue of multiple comparisons (i.e., multiple hypothesis tests).  Multiple comparisons is most often considered to be an issue when doing many comparisons using the same response variable, although sometimes folks consider comparisons from related response variables.  All the comparisons we consider to be related in some way may be referred to as the family of comparisons.
+
+The issue of multiple comparisons comes up when people are worried about the *familywise* Type I error rate; the Type I error rate for the whole family of comparisons.
+
+## Type I and Type II errors
+
+Type I errors are when we falsely reject a "true" null hypothesis.  When we consider Type I errors, we are often worried about saying something is going on when there really isn't.  The more comparisons we do, the more likely it is we will make a mistake, assuming all null hypotheses we are testing are "true".  The terms *false positive* or *false discovery* can also be used for this kind of mistake.
+
+You will see a lot of focus on Type I errors in statistics classes.  However, this is not the only kind of error you can make nor is it unquestionably the most important kind of error to worry about.  Type II errors, while less discussed, may also be important.  Type II errors occur when we fail to reject a false null hypothesis.  These are issues of false negatives, where we conclude that the data are not inconsistent with a hypothesis of nothing going on, but there really is. Which mistake worse? That depends on the situation. For example, a false negative could be terrible in a cancer screening because we want to catch the disease in its early stages, while a false positive could be terrible in a DNA test at a crime scene because we could put an innocent person behind bars. 
+
+It's important to recognize that Type I and Type II errors are about long run behavior, and have little to do with $p$-values calculated from an individual study. They can only be calculated if we do the exact same study many times, taking a different sample in each study iteration.  In addition, and more important, they can only be calculated if we already know the true answer.  To calculate a Type I error rate, we must assume there really is no difference among means or no relationship between variables (i.e., we assume the null hypothesis is *actually* true). To calculate a Type II error rate, we must assume there is really a difference among, for example, group means, and we would need to know exactly how large that true difference is (i.e., we need to specify an effect size).  
+
+While the concepts of Type I and Type II errors can be useful when in the planning stages of a study, they are not useful when looking at observed results.  First, they can help lead us into dichotomous thinking, where we say there absolutely was or wasn't an effect only based on statistical measures.  Second, observed results from a single study are not long run averages; Type I and Type II errors aren't meaningful when looking at the observed results from a single analysis, they are theoretical properties of statistical testing procedures under different conditions. They provide a means of comparing testing procedures on theoretical bases, but that's really about it.  
+
+## Beyond Type I and Type II errors
+
+Instead of thinking about Type I/Type II errors in a purely statistical sense, we can use them as a proxy for thinking about our study results and whether we are most concerned with overstating or understating the observed study results. 
+
+We need to think about how likely it is that whatever we are studying should show some effect, such as a difference in means or a non-zero slope.  The probability that what you see is a "false discovery" is really based on an underlying truth we don't know and the unrealistic assumption that we can repeat the study over and over again under the same conditions.  Given that, we need to think about what we believe that underlying truth to be based on expert knowledge when thinking about how to frame our results.
+
+What kind of mistake are you willing to make in your own research?  Are you more concerned with being too conservative and reporting little effect when there really was a large effect?  This would be a situation where your confidence interval is overly wide and so you are being conservative since a wide confidence interval has many plausible values in it for the true effect.  Or are you more concerned about overstating the results, making a strong statement of an effect that is actually spurious?  This would be a situation where your confidence intervals are too narrow, and you overstate the precision of the results.  Be prepared to discuss this in class and justify your choices in your own work to your committee, collaborators, and paper reviewers.
+
+## When to use an adjustment
+
+Given the issues with Type I and Type II errors, do we need to adjust $p$-values and / or confidence intervals for multiple comparisons?  The answer, like so many in statistics, is a solid "maybe".  It depends on the goals of your research and your answers to some of the questions I listed above.  It may also depend on your field.  For good or ill, some fields always use certain multiple comparison adjustments regardless of any of the other issues we will consider.
+
+The amount of planning that went into the comparisons is something to consider when deciding about whether you will use an adjustment or not.  A few, carefully planned comparisons you defined before you collected any data is considered by many to be a different situation than when you are doing all possible pairwise comparisons across many groups.  With preplanned comparisons you may be able to justify not using a multiple comparisons adjustment because you planned things so carefully using *a priori* knowledge.  If you have a strong idea that there will be an effect based on a current scientific theory (i.e., reducing competition increases growth), it may be easier to justify not doing an adjustment.  When doing all pairwise comparisons, though, you may be more concerned about overstating the results and so decide to use an adjustment for multiple comparisons. For example, what is more compelling?:
+
+1. I defined three contrasts I was interested in before the study because strong differences would support my hypothesis, while only two strong difference would support an alternative hypothesis. Say I found strong effects and the $p$-values from the contrasts suggest the data are not particularly compatible with the null hypotheses of no differences.
+
+2. I looked at 100 pairwise comparisons and found 3 with strong differences for which the $p$-values from the test against no difference were small. 
+
+The type of research you are doing could also affect your decision to make an adjustment or not.  Confirmatory research is usually more strict about being careful not to overstate results than exploratory research. However, multiple comparisons can be a useful tool in exploratory research as well. For example, investigators doing exploratory genetics research tend to use multiple comparison adjustments as a way to weed out some of the many many (on the order of thousands to tens of thousands) potentially real associations between genetic loci and phenotypes, if nothing more than to focus their future efforts exploring impacts of genetics variation at specific loci.
+
+What the results are going to be used for may affect whether we want to be more conservative (wider CI) or less conservative (narrower CI).  This is based on scientific expertise and not statistics, which is one reason why I can't give you a blanket rule on when we should or shouldn't use multiple comparisons adjustments.
+
+Whatever you choose to do, you should state which adjustment you used and why.  This indicates you thought about the problem and made a decision as an expert in your field.  Below are some examples of stating why adjustments were or were not used so you can see the kind of language you might use in assignments and in your thesis.
+
+## Options for adjustments in `emmeans`
+
+We are using package `emmeans` in this class for doing comparisons of means across groups.  This package comes with several built-in adjustments for multiple comparisons.  You can see more information on these adjustments in the documentation for `summary.emmGrid()`.  Also review your notes from previous statistics classes if you can't remember when some of these are used.
+
+Below are the emmeans built-in adjustments below.  The stars indicate adjustments that are extremely conservative for large families of comparisons.  Unless these are standard in your field or you are very concerned about overstating results, you might want to avoid these adjustments.
+
+- Tukey’s honestly significant difference (HSD) - For all pairwise comparisons.
+
+- Scheffe’s method
+
+- Sidak correction*
+
+- Bonferroni correction*
+
+- Dunnett’s method - For all comparisons against a control
+
+- Multivariate-t correction - Useful for adjusting confidence intervals
+
+- No correction
+
+# Inconclusive results
+
+Unfortunately, there are going to be situations where the results of a study are inconclusive.  The thinning example from week 2 is one such situation. In Figure \@ref(fig:thinning-eg), we can see that the differences between the moderate and heavy thinning versus the light thinning were in the expected direction but were smaller than the practically important difference.  In addition, the confidence intervals are quite wide, encompassing both practically important differences and differences in the "wrong" direction.  
+
+There is nothing we can do about this after the fact.  Investigators need to be up front that little was learned, which can be difficult to admit, especially when journals prefer to publish studies with strong effects and publications carry such weight on a CV (this biases the perception of what we think we know in the scientific community, though).
+
+## Issue of sample size
+
+Having wide confidence intervals is a common problem when an analysis ends up with inconclusive results.  The size of the confidence interval is affected by the standard errors.  Standard errors are affected by the sample size.
+
+As a reminder, here is the calculation of the standard error:
+
+$$
+SE = \sqrt{\frac{s^2}{n}}
+$$
+where $s^2$ is the sample variance. What happens to the standard error as $n$ gets large?
+
+Given the same standard deviation (SD), a larger sample will reduce the standard error and so the size of confidence intervals. There is one **very important** nuance to this, though. Sample size is not the only thing that affects the standard error. You can collect infinitely many samples from a study in which your protocol or variable of interest is confounded with another variable, such as the blocking factor discussed in reading 3.1. If both are in the model, the width of the CI will remain infinitely large! Thus, increasing your sample size is a good thing *if* you have a solid experimental / sampling design.
+
+## Issue of variation
+
+Unexplained variation is another important factor that can cause wide confidence intervals.  This is variation that is not explained by other variables in the model or controlled for by the study design.  
+
+What happens to the standard error as the SD gets small, given a fixed sample size?
+
+The affect of unexplained variation on the results is why we spent time talking about sources of variation.  If we can control the variation via study design or explain it through covariates, we can get a more precise answer without having to sample more units.
+
+## Limitations
+
+You will be asked to discuss study limitations on assignments and in your final project.  
+
+One such limitation for inconclusive results like the one above could be related to a wide confidence interval.  If you believe the study should have chosen a larger sample size, be specific on how that would help with conclusions in a future study.
+
+The amount of unexplained variation is another common limitation for studies with inconclusive results.  If so, you could discuss other factors that you think investigators should control or collect data on in future studies.  
+
+The representativeness of the sample to the population of inference could be a limitation you want to discuss.  For example, you could question how representative a very small sample really is of the population. The smaller the sample, the greater an effect "odd" observations, while true to the population of interest, will have on your results.  
+
+Scope of inference will commonly come up in your limitations section even if results were "conclusive".  I find this especially true for observational studies done in a single year or some other short time frame. We know as ecologists that conditions in nature can vary drastically from year to year.
+
+
+
+
+
+
+
+
+
