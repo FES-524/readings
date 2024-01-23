@@ -81,7 +81,7 @@ There is nothing we can do about this after the fact.  Investigators need to be 
 
 ## Issue of sample size
 
-Having wide confidence intervals is a common problem when an analysis ends up with inconclusive results.  The size of the confidence interval is affected by the standard errors.  Standard errors are affected by the sample size.
+Having wide confidence intervals is a common problem when an analysis ends up with inconclusive results.  The size of the confidence interval is affected by the standard errors, which are affected by the sample size.
 
 As a reminder, here is the calculation of the standard error:
 
@@ -90,7 +90,7 @@ SE = \sqrt{\frac{s^2}{n}}
 $$
 where $s^2$ is the sample variance. What happens to the standard error as $n$ gets large?
 
-Given the same standard deviation (SD), a larger sample will reduce the standard error and so the size of confidence intervals. There is one **very important** nuance to this, though. Sample size is not the only thing that affects the standard error. You can collect infinitely many samples from a study in which your protocol or variable of interest is confounded with another variable, such as the blocking factor discussed in reading 3.1. If both are in the model, the width of the CI will remain infinitely large! Thus, increasing your sample size is a good thing *if* you have a solid experimental / sampling design.
+Given the same standard deviation (SD), a larger sample will reduce the standard error and so the size of confidence intervals. While this is true for any finite standard deviation, there is one **very important** nuance to this. Sample size is not the only thing that affects the standard error. You can collect infinitely many samples from a study in which your protocol or variable of interest is confounded with another variable, such as the blocking factor discussed in reading 3.1. If both are in the model, the width of the CI will remain infinitely large! Thus, increasing your sample size is a good use of your time and resources *if* you have a solid experimental / sampling design. Sometimes, however, you can get a bigger "bang for your buck" in terms of smaller standard errors by improving the experimental / sampling design instead of simply sampling till you drop (the brute force option).
 
 ## Issue of variation
 
@@ -98,7 +98,7 @@ Unexplained variation is another important factor that can cause wide confidence
 
 What happens to the standard error as the SD gets small, given a fixed sample size?
 
-The affect of unexplained variation on the results is why we spent time talking about sources of variation.  If we can control the variation via study design or explain it through covariates, we can get a more precise answer without having to sample more units.
+The affect of unexplained variation on the results is why we spent time talking about sources of variation.  If we can control the variation via study design (e.g., blocking) or explain it through covariates, we can get a more precise answer without having to sample more units.
 
 ## Limitations
 
@@ -108,10 +108,55 @@ One such limitation for inconclusive results like the one above could be related
 
 The amount of unexplained variation is another common limitation for studies with inconclusive results.  If so, you could discuss other factors that you think investigators should control or collect data on in future studies.  
 
-The representativeness of the sample to the population of inference could be a limitation you want to discuss.  For example, you could question how representative a very small sample really is of the population. The smaller the sample, the greater an effect "odd" observations, while true to the population of interest, will have on your results.  
+The representativeness of the sample to the population of interest could be a limitation you want to discuss.  For example, you could question how representative a very small sample really is of the population. The smaller the sample, the greater an effect "odd" observation will have on your results, despite being a valid observation from the population of interest.  
 
 Scope of inference will commonly come up in your limitations section even if results were "conclusive".  I find this especially true for observational studies done in a single year or some other short time frame. We know as ecologists that conditions in nature can vary drastically from year to year.
 
+# Power analysis
+
+Statistical power is defined mathematically as 1 minus the probability of a Type II error.  In words, power is the probability that we will reject the null hypothesis when it is indeed false, given some fixed alpha level. This is a statistical term that requires theoretical long-run averages and the assumption that we know the truth; remember to avoid dichotomous thinking in *observed* results as discussed above.
+
+## Basic approach
+
+### Define an effect size
+
+Power analysis requires you to define an effect size that you think is realistic and would indicate something practically important in your field.  Generally speaking, the larger the effect size, the fewer samples you need to detect a signal.
+
+### Define the expected variance around that effect size.
+
+Again, this must be a realistic estimate of the variance.  The smaller the variance, the fewer samples you need to get a precise estimate of the effect size.
+
+It is often nice to define the effect size and expected variance may come from previous research.  But beware the winner’s curse!  These values should not be solely based on estimates from small pilot studies.  Studies with very low power can lead to exaggerated effect sizes while severely underestimating the true variance.  The short blog post by Andrew Gelman you are also reading this week hits on this same idea.  If you are interested in more information on the winner’s curse, see the Button et al. 2013 paper "Power failure: why small sample size undermines the reliability of neuroscience".
+
+3.	Choose a minimum power your study should have
+
+This is where you think about the seriousness of making a Type II error in what you are studying.  The higher the power you choose (i.e., the lower the Type II error rate), the more samples you will need.
+
+4.	Choose an alpha value
+
+This is where you think about the seriousness of making a Type I error.  This means you shouldn’t simply blindly choose 0.05 as your cut-off but seriously consider what it would mean to your research to make a Type I error as well as how likely you think it is that you will see an effect.  The larger the alpha value the fewer samples you’ll need.
+
+Unlike after you have observed the results, considering Type I and Type II error rates and how serious each is in your research makes some sense during the design phase. 
+
+Once you have all of these pieces of information you can calculate the number of samples you need per group (for simple study designs).  If working with categorical explanatory variables, we usually make the simplifying assumption that we will have the same number of observations in every group when doing a power analysis.
+
+Why do a power analysis?
+
+There are a lot of positives that come out of doing a power analysis.  
+
+Investigators must define the effect of interest.  This means they are forced to consider the size of the effect they think would be important, which is a big improvement over only considering the value from the null hypothesis.
+
+Since values are needed for both an effect size and a reasonable estimate of variance around that effect, investigators must review the previous research that is similar to the proposed research with a critical eye.  For example, they need to consider how “good” estimates are that are coming out of previous research.
+
+Analyses are based on a lot of assumptions, and a power analysis forces investigators to state those assumptions. This includes the alpha value they are willing to consider as well as a value for power.
+
+For simple analyses, such as a t-test or a basic ANOVA, you may find simple power analysis calculators such a G*Power useful.  For more complicated study designs or models like mixed models or generalized linear models you will more likely need to use a simulation based approach.
+ 
+Simulations
+
+Simulations are a powerful approach to exploring design trade offs and understanding how a model works in less-than-ideal circumstances (such as if an assumption hasn’t been met).  Simulations usually involve a fair amount of coding, which makes them difficult to fit into most classes that are set up like this one.  We unfortunately will not learn to do simulations in this class.
+
+You can see some blog posts on how to do get started doing simulations in R for different kinds of linear models here:  https://aosmith.rbind.io/tags/#simulation-list.  We will talk a little more about one of these posts in class as time allows.
 
 
 
