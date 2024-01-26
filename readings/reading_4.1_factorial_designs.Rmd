@@ -1,0 +1,42 @@
+---
+title: "FES 524: Natural Resources Data Analysis"
+subtitle: "Reading 4.1: Factorial designs"
+output:
+    bookdown::pdf_document2
+toc: true
+toccolor: blue
+urlcolor: cyan
+linkcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, fig.show = 'hold')
+```
+
+# Multiple factors of interest
+
+Up to this point, we have been studying relatively simple study designs with single factors of interest; however, many studies involve interest in the effect of more than one factor on the mean of the response variable.  There are several reasons we might want to study multiple factors at once.  First, it is often practically efficient in terms of costs to investigate multiple factors at once rather than doing separate studies to investigate separate factors.  In addition, the analysis can often be done as a single analysis instead of separate analyses, which is also efficient.  Finally, investigators may expect the factors to act together, in which case they can explore the *interaction* between the two factors. You will learn more about interactions later in this reading.  
+
+While you may see research involving many factors of interest, in this class we focus on studies where there are only two factors of interest.
+
+## Crossed factors
+
+Factors are *crossed* if all combinations of factor levels from each factor are present.  This means every level of one factor is present with every level of another factor.  To check for crossing we check that all combinations are present in our data.  If they are, we will describe the two factors as crossed or fully crossed.
+
+Below is an example of crossed factors.  The columns show the three levels of one factor.  The rows show the two levels of a second factor.  The cells of the table show the combined factor levels.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
