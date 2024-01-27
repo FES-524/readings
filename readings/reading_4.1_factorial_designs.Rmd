@@ -115,6 +115,63 @@ Figure \ref{fig:noint-plot} shows another interaction plot, however, Figure \ref
 knitr::include_graphics(here("images/no_interaction_eg.png"))
 ```
 
+If needed, here is how we could describe the lack of interaction:
+
+- The effect of concentration does not depend on fertilizer type.
+
+- The difference in mean response among concentrations does not differ between fertilizers.
+
+If the research question was clearly about overall effects, only comparisons of main effects (ignoring the other factor) should be reported.  Below is some example language about what this would look like.
+
+**Overall effect of concentration**:
+
+> Increasing the amount of fertilizer from 0.5 to 1.0 kg/ha is estimated to increase the mean biomass by 0.79 kg/ha (95% CI: 0.74 to 0.84 increase).
+
+**Overall effect of fertilizer**:
+
+> Fertilizer B is estimated to increase mean biomass by 1.25 kg/ha compared to Fertilizer A (95% CI: 1.20 to 1.30 increase).
+
+# Interaction or no interaction? That is the question.
+
+Working with multiple explanatory variables should not automatically mean the analysis has to include an interaction, although many classes that discuss factorial designs focus on interactions and main effects from a purely statistical and not scientific perspective.  When should the investigator think about and include interactions?
+
+This is actually a question about good research practices as well as appropriate statistical practice.  An investigator with a well-fleshed out research question and study design in an established field should have an idea if they expect the factors to interact or not.  In confirmatory work, this expectation should be made clear in the introduction section that describes the study.  The examples we are using in this class will demonstrate different ways a researcher can do this.
+
+As we have and will continue to emphasize in this class, a $p$-value from an overall test about an interaction cannot by itself indicate if there "was" or "was not" an interaction.  How the analysis proceeds and what results should be reported needs to be driven by scientific expertise and the research question.  Regardless of the size of a $p$-value as evidence against the null hypothesis of no interaction, if the research question was explicitly about how two factors together influence the mean response, then comparisons should be reported using both factors (i.e., at the interaction level) to assess practical importance.
+
+There are of course situations where research is exploratory.  In such cases, there are no previous studies and no scientific theories to guide the research.  The investigator may then have no idea if two factors should interact or not.  Remember that the goal of exploratory work is to gather information that can be used to inform future research.  In exploratory work with multiple factors of interest, the investigator will most often plan on reporting all possible comparisons, both main effects and all interaction effects, in order to best inform future research.  $p$-values can certainly be used as evidence against the null hypothesis of no interaction with all the usual caveats, but it is the estimated differences among groups of interest, both simple effects and main effects, that will be most useful in forming future research questions.  
+
+# Main effects in the presence of an interaction
+
+Another common discussion point when working with factorial designs is when and if it makes sense to talk about main effects when the effect of one variable actually depends on the value of another variable.  You will see some sweeping rules on this in some textbooks, such as "never report a main effect in the presence of an interaction".  Like so many things in statistics, things are not really so cut and dry.  Whether or not you want to report a main effect in the presence of an interaction depends on the situation you are in.
+
+To estimate the main effect of one factor in the presence of an interaction with another factor, we average over the levels of the second factor.  Sometimes it makes sense to do this, but other times it may not.  We will walk through examples of this in class.  
+
+Much of this question about "main effects in the presence of an interaction" comes down to the research question and the kind of research being done.  If an investigator wants to estimate main effects based on some a priori reason, even though they also believed a factor would interact with another, they are free to do so.  They should be clear why the main effects are of interest.  If a study involves research that is totally exploratory, the investigator will most likely want to report all effects to best inform future research.  
+
+Note that with categorical explanatory variables, we never have to remove an interaction from the model to talk about main effects.  Model selection is not a standard part of statistical analyses and working with factors makes this easy.  From the statistical point of view, taking things in and out of the model is not a standard modeling approach.  This may come as a surprise to some of you based on the statistical practice you may have seen reported in the literature in your field.  While we don't have a lot of time to discuss this, we will touch on the topic of model selection in the coming weeks.
+
+Working with continuous variables is a little bit different.  We can still estimate overall slopes even if we allow separate slopes per group from a model (i.e., an interaction between a continuous and a categorical variable).  However, we don't have any easy way to calculate standard errors for that overall slope.  We are often forced to remove continuous by categorical interactions if the focus is on overall slopes instead of group specific slopes unless we bootstrap confidence intervals.  
+
+Note that there is no need to report overall slopes if the original question only involved an interaction.  On the other hand, if the research question was specifically about overall slopes and the interaction was a check of model fit, leaving it out of the model in the end can make scientific sense (since the model without it was the one the investigator believed was "true" based on *a priori* knowledge).  
+
+# A note on language when working with multiple factors
+
+Once we are working with multiple factors in the same model we must be more careful with the language we use.  It is not unusual to see people refer to each individual factor as a "treatment", but also use the word "treatment" to describe applying the combination of multiple factors.  This is extremely confusing for the reader.  Choose your language carefully to avoid this problem.  For example, we could use "concentration" and "fertilizer type" to refer to the factors in the examples above.  
+
+If you must use the word "treatment", one option I have seen that makes sense is to only use it to refer to the combination of factor levels applied to a study/experimental unit.  Individual factors should then be referred to without that language, reserving "treatment" to mean the factor combinations.
+
+# Statistical model
+
+The statistical model for a $2\times 2$ factorial design using the regression parameterization can be written as
+
+$$
+y_i = \beta_0 + \beta_1x_{i1} + \beta_2z_{i1} + \beta_3x_{i1}z_{i1} + \epsilon_i
+$$
+
+where the variables $x_{i1}$ and $z_{i1}$ are "dummy" variables (0's and 1's) taking the value 1 if observation $i$ comes from factor level 2 for each factor, respectively. As usual, we assume $\epsilon_1, \epsilon_2,...,\epsilon_n \overset{iid}{\sim} \mathcal{N}(0, \sigma^2)$. Thus, $\beta_0$ is the mean response when in the reference level, with is the treatment of the first level of each factor. Using the concentration-fertilizer example above, $\beta_0$ is the mean response for study units that get fertilizer A at a concentration of 0.5 kg/ha (level 1 of each factor). 
+
+The coefficients $\beta_1$ and $\beta_2$ are *differences* between the mean of other treatments and that of the reference level. Finally, $\beta_3$ represents a difference of differences. Don't worry if this is unclear now, we will discuss this further in class and use `emmeans` to construct estimates of interest in practice.
 
 
 
