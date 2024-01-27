@@ -116,6 +116,8 @@ Scope of inference will commonly come up in your limitations section even if res
 
 Statistical power is defined mathematically as 1 minus the probability of a Type II error.  In words, power is the probability that we will reject the null hypothesis when it is indeed false, given some fixed alpha level. This is a statistical term that requires theoretical long-run averages and the assumption that we know the truth; remember to avoid dichotomous thinking in *observed* results as discussed above.
 
+I almost hesitate to include the following information because I think it risks instilling too much dichotomous thinking. Read below with the caveat in your mind that Type I and Type II errors only arise *because we are thinking in a dichotomous way*. While this is valid in the theoretical context, most of what we do en ecology shouldn't be boiled down to "discoveries" and "lack-thereof". However, power analyses can be useful during the study design phase, so the general ingredients that are needed for power analysis are outlined below.
+
 ## Basic approach
 
 ### Define an effect size
@@ -128,35 +130,35 @@ Again, this must be a realistic estimate of the variance.  The smaller the varia
 
 It is often nice to define the effect size and expected variance may come from previous research.  But beware the winner’s curse!  These values should not be solely based on estimates from small pilot studies.  Studies with very low power can lead to exaggerated effect sizes while severely underestimating the true variance.  The short blog post by Andrew Gelman you are also reading this week hits on this same idea.  If you are interested in more information on the winner’s curse, see the Button et al. 2013 paper "Power failure: why small sample size undermines the reliability of neuroscience".
 
-3.	Choose a minimum power your study should have
+### Choose a minimum power your study should have
 
 This is where you think about the seriousness of making a Type II error in what you are studying.  The higher the power you choose (i.e., the lower the Type II error rate), the more samples you will need.
 
-4.	Choose an alpha value
+### Choose an alpha level
 
-This is where you think about the seriousness of making a Type I error.  This means you shouldn’t simply blindly choose 0.05 as your cut-off but seriously consider what it would mean to your research to make a Type I error as well as how likely you think it is that you will see an effect.  The larger the alpha value the fewer samples you’ll need.
+This is where you think about the seriousness of making a Type I error. You shouldn't simply default to choosing 0.05 as your cut-off but seriously consider what it would mean to your research to make a Type I error as well as how likely you think it is that you will see an effect.  The larger the alpha value the fewer samples you will need to detect "an effect" (again, potentially nonsensical dichotomous thinking here).
 
-Unlike after you have observed the results, considering Type I and Type II error rates and how serious each is in your research makes some sense during the design phase. 
+Unlike after you have observed the results, considering Type I and Type II error rates and how serious each is in your research can be helpful during the design phase. 
 
-Once you have all of these pieces of information you can calculate the number of samples you need per group (for simple study designs).  If working with categorical explanatory variables, we usually make the simplifying assumption that we will have the same number of observations in every group when doing a power analysis.
+Once you have all of these pieces of information you can calculate the number of samples you need per group (for simple study designs).  If working with categorical explanatory variables, we usually make the simplifying assumption that we will have the same number of observations in every group when doing a power analysis. Indeed, balanced designs are more powerful than unbalanced designs.
 
-Why do a power analysis?
+## Why do a power analysis?
 
 There are a lot of positives that come out of doing a power analysis.  
 
 Investigators must define the effect of interest.  This means they are forced to consider the size of the effect they think would be important, which is a big improvement over only considering the value from the null hypothesis.
 
-Since values are needed for both an effect size and a reasonable estimate of variance around that effect, investigators must review the previous research that is similar to the proposed research with a critical eye.  For example, they need to consider how “good” estimates are that are coming out of previous research.
+Since values are needed for both an effect size and a reasonable estimate of variance around that effect, investigators must review the previous research that is similar to the proposed research with a critical eye.  For example, they need to consider how "good" estimates are that are coming out of previous research.
 
 Analyses are based on a lot of assumptions, and a power analysis forces investigators to state those assumptions. This includes the alpha value they are willing to consider as well as a value for power.
 
-For simple analyses, such as a t-test or a basic ANOVA, you may find simple power analysis calculators such a G*Power useful.  For more complicated study designs or models like mixed models or generalized linear models you will more likely need to use a simulation based approach.
+For simple analyses, such as a t-test or a basic ANOVA, you may find simple power analysis calculators online, like [this one](https://www.statskingdom.com/sample_size_regression.html).  For more complicated study designs or models like mixed models or generalized linear models you will more likely need to use a simulation-based approach.
  
-Simulations
+## Simulations
 
-Simulations are a powerful approach to exploring design trade offs and understanding how a model works in less-than-ideal circumstances (such as if an assumption hasn’t been met).  Simulations usually involve a fair amount of coding, which makes them difficult to fit into most classes that are set up like this one.  We unfortunately will not learn to do simulations in this class.
+Simulations are a powerful approach to exploring design trade offs and understanding how a model works in less-than-ideal circumstances (such as if an assumption hasn't been met).  Simulations usually involve a fair amount of coding, which makes them difficult to fit into most classes that are set up like this one.  We unfortunately will not have enough time to learn to do simulations in this class.
 
-You can see some blog posts on how to do get started doing simulations in R for different kinds of linear models here:  https://aosmith.rbind.io/tags/#simulation-list.  We will talk a little more about one of these posts in class as time allows.
+You can see some blog posts on how to do get started doing simulations in R for different kinds of linear models here:  [https://aosmith.rbind.io/tags/#simulation-list](https://aosmith.rbind.io/tags/#simulation-list). 
 
 
 
