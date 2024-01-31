@@ -14,9 +14,12 @@ knitr::opts_chunk$set(
     echo = FALSE,
     fig.show = 'hold',
     out.width = "85%",
-    fig.align = 'center'
+    fig.align = 'center',
+    warning = FALSE,
+    message = FALSE
 )
 library(here)
+library(tidyverse)
 ```
 
 
@@ -141,11 +144,32 @@ Features of the log-normal distribution:
 
 Seeing some examples of data drawn from a log-normal distribution can help show these features.
 
-Below is a plot showing a log-normal distribution.  The raw data is on the left and the log-transformed data is on the right, showing that it is approximately normally distributed after transformation.  The range of the variable is listed in the title so you can see the support.  In this case, which is common with log-normally distributed variables, the range is quite large.  This particular log-normal distribution is very right-skewed.  
+Figure \@ref(fig:lnorm) showing a log-normal distribution.  The raw data is on the left and the log-transformed data is on the right, showing that it is approximately normally distributed after transformation.  The range of the variable is listed in the title so you can see the support.  In this case, which is common with log-normally distributed variables, the range is quite large.  This particular log-normal distribution is very right-skewed.  
 
 
-```{r}
+```{r lnorm, fig.cap="Log-normal(0, 1) density compared to a normal(0,1) density. If a random variable $Y$ is distributed log-normal($\\mu$, $\\sigma^2$), then $\\log(Y)$ is distributed as $\\mathcal{N}(\\mu, \\sigma^2)$."}
+library(patchwork)
+df <- tibble(
+    y = seq(0.01, 4, length.out = 100),
+    lnorm_density = dlnorm(y),
+    logy = seq(-2, 2, length.out = 100),
+    norm_density = dnorm(logy)
+)
 
+p1 <- ggplot(data = df, aes(x = y, y = lnorm_density)) +
+    geom_line() +
+    theme_classic() +
+    ylab("Density") +
+    ggtitle("Log-normal(0, 1) density")
+
+p2 <- ggplot(data = df, aes(x = logy, y = norm_density)) +
+    geom_line() +
+    theme_classic() +
+    ylab("Density") +
+    xlab("log(y)") +
+    ggtitle("Normal(0, 1) density")
+    
+p1 + p2
 ```
 
 
@@ -153,9 +177,56 @@ Below is a plot showing a log-normal distribution.  The raw data is on the left 
 
 Now that you know more about the log-normal distribution you can see that this distribution does not contain 0 values.  If you have 0 values in a variable that you want to log-transform you will need to carefully think through your options.  I unfortunately see people thoughtlessly add something to the 0 values and go ahead with a log transformation without spending time thinking about what the 0 values in the data mean and whether or not they can justify adding something to those values.  Adding 1 is particularly attractive to people in this situation, which can fail rather spectacularly for certain types of data.  
 
-You may not be surprised to learn that the actual steps you should take are more complicated than simply adding an arbitrary value and transforming the variable.  Finding a reasonable analysis approach when you have 0 values along with positive, continuous data involves careful thought and scientific expertise.  It is possible that you will end up justifying that you can add some value and shifting your entire distribution away from 0.  However, you first have to make sure other options aren’t available for your particular situation and that adding something to the zeros makes scientific sense.
+You may not be surprised to learn that the actual steps you should take are more complicated than simply adding an arbitrary value and transforming the variable.  Finding a reasonable analysis approach when you have 0 values along with positive, continuous data involves careful thought and scientific expertise.  It is possible that you will end up justifying that you can add some value and shifting your entire distribution away from 0.  However, you first have to make sure other options are not available for your particular situation and that adding something to the zeros makes scientific sense.
 
 If you ever run into a situation where you have 0 values along with right-skewed data and the variance increasing with the mean, you need to do more reading on possible analysis approaches.  One place to start is with this blog post, https://aosmith.rbind.io/2018/09/19/the-log-0-problem/, and then going to some of the other discussions linked to from there.
+
+## Multiplicative models
+
+When working with a log-transformed response variable, the model is an additive (linear) model on the log scale.  Here is what the statistical model looks like for a two group log-linear model:
+
+$$
+\log(y_i) = \beta_0 + \beta_1 I\{g_2\}_i + \epsilon_i
+$$
+where $I\{g_2\}_i$ is an *indicator* variable indicating whether observation $i$ belongs to group 2. If so, $I\{g_2\}_i = 1$.
+
+One of the reasons the log transformation is so attractive, though, is that we can still make inference on the original scale and not the log scale.  We back-transform from a natural logarithm transformation by exponentiating both sides of the model.
+
+This results in a multiplicative model and estimates need to be expressed multiplicatively (i.e., times or percentage changes) instead of additively.  On the original scale, the model can be written as
+
+$$
+y_i = \exp\{\beta_0\} \times \exp\{ \beta_1 I\{g_2\}_i\}\times \exp\{ \epsilon_i\}.
+$$
+
+### Means on the log scale become medians on the original scale
+
+After back-transformation, all inference from your model of a log-transformed response variable will be about *medians* instead of means.  
+
+The reason for this has to do with symmetric distributions. If you are interested in more details, you can see more discussion on this topic in the Statistical Sleuth chapter 3.
+
+For real distributions, the estimated median based on the model and the observed median from the original data are not identical. This is because we are making inference to the population median but, of course, we only have a sample.  However, we can still make inference to medians.  Alternatively, you can talk about *geometric* mean if that is of interest in your field.
+
+## Multiplicative differences
+
+When back-transforming additive differences among groups after a log transformation, remember that results will be expressed as *estimated ratios of medians*.  If working with slopes (applicable when you have continuous explanatory variables) instead of group differences (categorical explanatory), results are about an estimated multiplicative change in the median of $Y$ for some change in a continuous variable.
+
+## Percentages
+
+When working with a percentage as a response variable, there can be a lot of ambiguity between whether the change expressed is additive (a percentage point change) or multiplicative (a percentage change).
+
+One way to clarify is to use the term "percentage point change" to indicate additive changes for simple differences; i.e., 40\% - 20\% = 20 percentage point change.
+
+If talking about a multiplicative change, use the term percentage change.  In a multiplicative change, the estimated change is relative to a baseline.
+
+## Percentage change vs ratios
+
+We can either use percentage changes or ratios to express multiplicative differences.  A lot of us tend to default to using percentage changes.  However, percentage changes are not symmetric and so we can confuse the reader if we are not careful.
+
+For example, the inverse of a 100\% increase from 2 to 4 is a 50\% decrease from 4 to 2.  An increase from 3 to 4 is a 33\% increase but the inverse, a decrease from 4 to 3, is a 25\% decrease.  If you change the order of a comparison you will always need to recalculate your percentage changes.
+
+This is not true for ratios.  They are always exactly symmetric.  Going from 2 to 4 is a doubling (2) and going from 4 to 2 is a halving (1/2).  Going from 3 to 4 is an increase by a factor of 4/3 while going from 4 to 3 is a decrease by a factor of 3/4.  To change the order of the comparison you only need to invert that ratio.
+
+This feature of ratios is why Frank Harrell argues that we should be using ratios and not percentage changes when reporting multiplicative results.  You can read his argument here: [http://www.fharrell.com/post/percent/](http://www.fharrell.com/post/percent/). 
 
 
 
