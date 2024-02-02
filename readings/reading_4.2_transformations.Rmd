@@ -7,6 +7,7 @@ toc: true
 urlcolor: "cyan"
 linkcolor: "blue"
 toccolor: "blue"
+bibliography: ../references.bib
 ---
 
 ```{r include=FALSE}
@@ -78,7 +79,7 @@ Only when $Y$ is transformed does the relationship of $Y$ vs $X$ change (shown i
 
 ```{r panel, fig.cap="Panels of $Y$ plotted against $X$. The first three show linear transformations of $Y$, while the final, in the lower-left, shows a non-linear transform of $Y$."}
 knitr::include_graphics(
-    here("images/scale_transform.png")
+    here("images/xy_panel_transforms.png")
 )
 ```
 
@@ -98,9 +99,9 @@ Here are just a few examples:
 
 - Square: $Y^2$
 
-Square root: $\sqrt{Y}$
+- Square root: $\sqrt{Y}$
 
-Log base 10: $\log_{10}(Y)$
+- Log base 10: $\log_{10}(Y)$
 
 How do you choose a transformation?  
 
@@ -119,7 +120,7 @@ That being said, do note that transformations can be more useful when the goal i
 
 Unlike other transformations, the log transformation can often be quite useful, particularly in regression contexts.  We will talk more about the log transformation, the log-normal distribution, and how to make inference after a log transformation in the next section.  
 
-Another potentially useful transformation when working with continuous proportion data is the logit transformation (i.e., log odds).  We will come back to this transformation when we get to logistic regression later in the class, but if you are struggling with meeting assumptions with continuous proportion data, take a look at the Warton and Hui 2011 paper on transformations for proportions.
+Another potentially useful transformation when working with continuous proportion data is the logit transformation (i.e., log odds).  We will come back to this transformation when we get to logistic regression later in the class, but if you are struggling with meeting assumptions with continuous proportion data, take a look at the @warton2011a paper on transformations for proportions.
 
 ## Alternatives to transformation
 
@@ -228,7 +229,7 @@ This is not true for ratios.  They are always exactly symmetric.  Going from 2 t
 
 This feature of ratios is why Frank Harrell argues that we should be using ratios and not percentage changes when reporting multiplicative results.  You can read his argument here: [http://www.fharrell.com/post/percent/](http://www.fharrell.com/post/percent/). 
 
-
+# References
 
 
 
