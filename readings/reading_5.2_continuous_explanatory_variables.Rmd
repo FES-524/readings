@@ -1,0 +1,201 @@
+---
+title: "FES 524: Natural Resources Data Analysis"
+subtitle: "Reading 5.2: Continuous explanatory variables and variable selection"
+output:
+    bookdown::pdf_document2
+toc: true
+urlcolor: "cyan"
+linkcolor: "blue"
+toccolor: "blue"
+bibliography: ../references.bib
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    fig.show = 'hold',
+    out.width = "85%",
+    fig.align = 'center',
+    warning = FALSE,
+    message = FALSE
+)
+library(here)
+library(tidyverse)
+```
+
+
+# Continuous explanatory variables
+
+Most of this quarter we are going to continue to work with categorical explanatory variables for assignments, but you will also likely use continuous explanatory variables frequently in your work.  You may have heard analyses working with continuous explanatory variables referred to as regression.
+
+Regression is a special term used to indicate a linear model or a generalized linear model with continuous explanatory variables.  This term also may be used when the model contains a mix of continuous and categorical explanatory variables.  All of these models fall under the umbrella of linear models, though, and that is the term I will use in this class.  
+
+## Linear relationships
+
+Recall that the statistical model for a simple linear regression is
+
+$$
+y_i = \beta_0 + \beta_1 x_i + \epsilon_i
+$$
+
+where $y_i$ is the observed response or *dependent variable* for observation $i$, $\beta_0$ is the *intercept*, or the mean response when $x = 0$, and $\beta_1$ is the *slope*, or the expected change in the mean of the response with a one-unit increase in $x$. As usual, we assume $\epsilon_1, \epsilon_2, ..., \epsilon_n \overset{iid}{\sim} \mathcal{N}(0, \sigma^2)$. In other words, we are just modeling a line on the $(x,y)$ plane (remember the ol' rise over run stuff?). The line falls along the mean of the response variable $Y$, as in Figure \@ref(fig:lin-reg).
+
+```{r lin-reg, fig.cap="Conceptual drawing of linear regression. The line models the mean response, while the errors are normally distributed about the line with constant variance."}
+
+df <- tibble(
+    x = seq(-3, 3, length.out = 6),
+    y = x * 0.5
+)
+
+# For every row in `df`, compute a rotated normal density centered at `y` and shifted by `x`
+curves <- purrr::map(
+    1:nrow(df),
+    ~ tibble(
+        y = seq(df$y[.x] - 3, df$y[.x] + 3, length.out = 100), 
+        x = dnorm(y, mean = df$y[.x]) + df$x[.x],
+        obs = rnorm(100, mean = df$y[.x]),
+        x2 = df$x[.x]
+    )
+)
+# Combine above densities in one data.frame
+curves <- do.call(rbind, curves)
+curves <- curves %>% mutate(
+    grp = factor(rep(1:nrow(df), each = 100))
+)
+
+
+ggplot(df, aes(x, y)) +
+  geom_line(linewidth = 2) +
+  geom_jitter(data = curves, aes(x = x2, y = obs), width = 0.2, size = 0.5, alpha = 0.5, color = "grey") +
+  # The path draws the curve
+  geom_path(data = curves, aes(group = grp), linewidth = 0.3, color = "brown") +
+  theme_classic()
+
+
+```
+
+The assumption that the relationship between two variables is linear is a strong assumption.  The investigator will need to consider how reasonable that assumption is before they are at the analysis stage.  This could be based off prior research or other scientific expertise.
+
+There are plenty of alternative models that don't assume linear relationships in modern statistics. Statistical approaches for non-linear relationships can be broadly housed under the umbrella of *generalized additive models* (GAMs), but, of course, many machine learning models can also model non-linear relationships. Machine learning approaches are focused on prediction often at the expense of interpretation, so I consider them something of a different beast from GAMs. 
+
+It is common for investigators to choose alternative models only after exploring the observed data.  In particular, I see investigators adding in higher order polynomials because they saw a pattern after data collection.  While data exploration is a vital part of analysis, deciding on a relationship only after looking at the data is poor statistical practice. The reason for this is that we are assuming a certain statistic model is an appropriate model of the data-generating process. In this model, only the data are random variables. If I decide on a model structure only after seeing the data, then both the data and the model structure are random since the model structure is determined based on the data. However, I usually do not see folks acknowledging this uncertainty in the model structure and adjusting there inference for the extra variability. 
+
+If you are doing confirmatory work, the observed data shouldn't dictate how you model a relationship because you already have a good idea of what you expect the relationship to be based on scientific theories.  If you see something surprising in the observed data, it is appropriate to add some exploratory analyses to discuss the unusual pattern while also reporting on your originally planned analysis.  As always, if doing exploratory research, you have more freedom.
+
+
+Figure \@ref(fig:anscombe) is Anscombe’s famous quartet.  The four datasets show identical linear fits even though the underlying shapes of the relationships are very different.
+
+```{r anscombe, fig.cap="Anscombe's quartet. Four datasets that result in identical linear model estimates, but vary dramatically in the relationships between $X$ and $Y$."}
+knitr::include_graphics(here("images/anscombes_quartet.png"))
+```
+
+We would be able to see issues of model fit in residuals plots.  Looking for patterns that indicate lack of fit is one of the reasons we make residuals versus fitted and residual versus explanatory variable plots.
+
+Figure \@ref(anscombe-resid) shows residuals plots from linear models fitted to each dataset in Anscombe's quartet.  You can see clear issues in all plots other than Set 1.
+
+```{r anscombe-resid, fig.cap="Residuals from simple linear models fit to each of Anscombe's datasets."}
+knitr::include_graphics(here("images/anscombe_resids.png"))
+```
+
+### Linearity and scale
+
+Remember the ol' definition of the derivative of a function $f(x)$ from calculus?
+
+$$
+f'(x) = \underset{h \to 0}{\text{lim}} \frac{f(x + h) - f(x)}{h}
+$$
+Parsing this out, the numerator is the change along the vertical axis with a given change in the horizontal axis, $h$, while the denominator is the change in the horizontal axis. In other words, *rise over run*! That means, we can describe *any continuous function*, $f(x)$, with a line, as long as we zoom in close enough on the function. 
+
+What I am getting at is that the assumption of linearity and how reasonable it is can depend on the scale of our measurements. For example, Figure \@ref(fig:scatter1) shows a scatterplot between two variables, $X$ and $Y$.  The measurements of $Y$ were taken across a wide range of the $X$ variable. Clearly, there is a non-linear relationship between the two variables.
+
+```{r fig.height=2, fig.width = 3, scatter1, fig.cap="Scatterplot of fictitious data on $X$ and $Y$."}
+df2 <- tibble(
+    x = seq(0, 10, length.out = 100),
+    y = 1 + 3 * x + -0.3 * x^2 + rnorm(100, sd = 0.5)
+)
+
+ggplot(data = df2, aes(x = x, y = y)) +
+    geom_point() +
+    theme_classic()
+```
+
+
+However, the assumption of linearity could still be reasonable for a narrower range of $X$.  Things are often reasonably linear at small scales even if we "know" they won't be at larger scales.  Figure \@ref{fig:scatter2} shows the same data as in Figure \@ref(fig:scatter1) but plotted over the range of $X \in (0, 2)$ and $X \in (2, 3)$, which look reasonably linear at this scale of $X$.
+
+```{r fig.height=2.5, scatter2, fig.cap="Scatter plots of $X$ and $Y$ assuming we only measured $Y$ for smaller ranges of $X$."}
+
+library(patchwork)
+p1 <- ggplot(data = df2[df2$x < 2, ], aes(x = x, y = y)) +
+    geom_point() +
+    theme_classic()
+
+p2 <- ggplot(data = df2[df2$x > 2 & df2$x < 3, ], aes(x = x, y = y)) +
+    geom_point() +
+    theme_classic()
+
+p1 + p2
+```
+
+
+# Continuous and categorical variables
+
+As always, the model you fit when working with continuous and categorical variables depends on your research question. Below are some different options that serve as a reminder from ST 512 as well as the lecture on interactions in Week 04.
+
+## Parallel lines model
+
+One possible model of interest is the parallel lines model.  In this model, the primary interest is estimating a difference in mean response among groups, after accounting for some continuous variable.
+
+Since the lines are parallel, the differences in mean response among groups does not depend on the value of the continuous variable.  The factor and the continuous explanatory variable don't interact.
+
+Figure \@ref(fig:para-lines) shows an example of a parallel lines model from an analysis of two groups with a continuous variable $X$.  The difference in the mean of $Y$ among the two group is roughly 10 units across the entire range of $X$.
+
+```{r para-lines, fig.cap="Example of a dataset generated using the parallel lines model".}
+knitr::include_graphics(here("images/parallel_lines.png"))
+```
+
+The parallel lines analysis is what people used to mean when they use the term ANCOVA (which stands for analysis of covariance).  We will just refer to it as a linear model, but, be aware that some people use this term today to mean a linear model with both continuous and categorical variables in it.
+
+## Separate lines model
+
+The separate lines model is one with an interaction between the categorical and continuous explanatory variable.  Remember from lecture that we defined an interaction as when "the effect of one variable depends on the value of another variable".  
+
+An interaction between a categorical and continuous variable indicates we are interested in differences among the slopes for different groups.  The difference in mean response between groups now depends on the value of the continuous explanatory variable, as shown Figure \@ref(fig:sep-lines).  The difference in mean $Y$ between groups is around 15 when $X = 2$, but about 35 when $X = 8$.
+
+
+```{r sep-lines, fig.cap="Example of a dataset generated using the separate lines model".}
+knitr::include_graphics(here("images/parallel_lines.png"))
+```
+
+
+Using an interaction indicates an *a priori* interest in differences in slopes among groups.  When that is the case, the interaction should be kept in the model regardless of any statistical results.  You will report an estimate of the difference in slopes and likely make a graph like the one above to graphically display the results (although you may add confidence ribbons).  You should not take the interaction out and treat it as if the interaction term is exactly 0 if your research question was specifically about a different relationship for different groups.
+
+As discussed last week, if there is some interest in estimating the overall relationship we can get the "average" of slopes.  However, calculating the standard error for this overall relationship may be a problem.  Unlike when working with factors, the simplest thing to do is to remove the interaction to talk about an overall relationship.  Do this with great caution, being really honest with yourself about the goals of your research, your *a priori* assumptions and whether you are doing confirmatory or exploratory research.  Another option is bootstrap confidence intervals for the estimated overall slope with the interaction still in the model.  The function `emtrends()` from package `emmeans` will also do overall estimates for the slope with CIs in the presence of an interaction, although I haven't looked out how the confidence intervals are calculated.
+
+## Continuous by continuous interactions
+
+One difficult topic is how to work with continuous by continuous interactions.  Such an interaction would indicate that the relationship of one continuous variable, $X_1$, and the mean of $Y$ is affected by the value of a second continuous variable, $X_2$.  The result would be a plane (drawn in 3D) that has *curvature*, as discussed in lecture. For a reminder, see the "For Fun" section of the Week 04 module to find an interactive 3D graphic to play with.
+
+Certainly in complicated systems we think these interactions would exist.  Unfortunately, a lot of data is needed to estimate a continuous by continuous interaction well.  If you are planning on this, you should have the full range (or close to it) of one variable for roughly every value of the second variable.  Essentially, you want the two continuous variables to be *crossed.*  Without careful planning during the design phase to make sure you get well crossed variables, or if you end up working with very small samples, continuous by continuous interactions are not realistic to fit even when the concept of them is realistic.   Note that the computer won't stop you from fitting them, but results can have some of the same problems we discussed for lower power studies in week 3.
+
+# Analyses with many variables
+
+At some point during your scientific career, you will likely end up in a situation where you have many, many explanatory variables to contend with. In some cases, you may have more control variables than you have observations! This is known as the *high-dimensional setting* and is a difficult problem to tackle.
+
+First, some language:  Models with multiple explanatory variables should be referred to simply as linear models and not *multivariate* models.  A multivariate model is one that has multiple *response* variables, not multiple explanatory variables.
+
+## Option 1: Think really hard
+
+There isn't some easy statistical answer to what to do when we have many variables.  Even if you have heard of some amazing new tool that supposedly requires absolutely no work on your part to use, you should take such tools with a grain of salt.  What we seem to learn over and over in statistics is that there's no such thing as a "free lunch".  
+
+The best thing you can do when working with many variables is to spend a lot of time thinking hard about the problem.  This involves doing a lot of work figuring out exactly which variables are available and which are actually interesting to your research based on prior knowledge in your field.  You generally will need to focus on the most important variables, not all possible variables that you can calculate.  
+
+As always, there is more leeway to working with many variables and fitting many different models when doing exploratory work.  However, it is common in ecology these days for investigators who are doing similar research in different places claim that the work is totally exploratory and they have absolutely no information on which variables could be important in an analysis.  At some point the investigators will need to start using information from previous research and stop treating a study replication in a new place as only exploratory.  
+
+## How many variables can I use?
+
+
+
+
+
+
+
