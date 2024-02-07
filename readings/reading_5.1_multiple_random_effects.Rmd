@@ -1,6 +1,6 @@
 ---
 title: "FES 524: Natural Resources Data Analysis"
-subtitle: "Reading 4.2: Transformations"
+subtitle: "Reading 5.1: Multiple random effects and nesting"
 output:
     bookdown::pdf_document2
 toc: true
