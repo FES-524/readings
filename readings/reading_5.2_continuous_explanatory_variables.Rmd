@@ -2,12 +2,15 @@
 title: "FES 524: Natural Resources Data Analysis"
 subtitle: "Reading 5.2: Continuous explanatory variables and variable selection"
 output:
-    bookdown::pdf_document2
+    bookdown::pdf_document2:
+        latex_engine: lualatex
 toc: true
 urlcolor: "cyan"
 linkcolor: "blue"
 toccolor: "blue"
 bibliography: ../references.bib
+header-includes:
+    \usepackage{emoji}
 ---
 
 ```{r include=FALSE}
@@ -149,7 +152,7 @@ Since the lines are parallel, the differences in mean response among groups does
 
 Figure \@ref(fig:para-lines) shows an example of a parallel lines model from an analysis of two groups with a continuous variable $X$.  The difference in the mean of $Y$ among the two group is roughly 10 units across the entire range of $X$.
 
-```{r para-lines, fig.cap="Example of a dataset generated using the parallel lines model".}
+```{r para-lines, fig.cap="Example of a dataset generated using the parallel lines model."}
 knitr::include_graphics(here("images/parallel_lines.png"))
 ```
 
@@ -162,8 +165,8 @@ The separate lines model is one with an interaction between the categorical and 
 An interaction between a categorical and continuous variable indicates we are interested in differences among the slopes for different groups.  The difference in mean response between groups now depends on the value of the continuous explanatory variable, as shown Figure \@ref(fig:sep-lines).  The difference in mean $Y$ between groups is around 15 when $X = 2$, but about 35 when $X = 8$.
 
 
-```{r sep-lines, fig.cap="Example of a dataset generated using the separate lines model".}
-knitr::include_graphics(here("images/parallel_lines.png"))
+```{r sep-lines, fig.cap="Example of a dataset generated using the separate lines model."}
+knitr::include_graphics(here("images/sep_lines.png"))
 ```
 
 
@@ -193,9 +196,70 @@ As always, there is more leeway to working with many variables and fitting many 
 
 ## How many variables can I use?
 
+See Chapter 4 of the Harrell 2015 "Regression Modeling Strategies" book for more coverage on this topic and as a citation for where some of the numbers below come from.  His course notes are available online at http://hbiostat.org/doc/rms.pdf, although they don't go into a lot of detail.
 
+The discussion of the number of variables and model complexity is based on the assumption you are fitting some parametric model like a linear or additive model.
 
+You will often hear rules of thumb that the number of observations you need in order to estimate each parameter is roughly 10-15. For example, if you are trying to estimate the coefficients for a multiple regression with 4 explanatory variables, you should shoot for a minimum of 50 observations (10 for each slope parameter and 10 for the intercept). This target is for pretty noisy studies, which is likely standard in a lot of ecological studies but may not be for more controlled studies.  In a lot of ecological studies the *signal to noise ratio* is usually relatively low, meaning there is a lot of variability.  If you have high signal to noise ratio you can likely justify having fewer samples per parameter estimated.
 
+Writing this mathematically, we would say that $p < n/15$, where $n$ is the sample size and $p$ is the number of parameters in the fullest model.
 
+This is not to say that we *can't* estimate parameters with a smaller sample size, these are just rules of thumb about how to get reliable estimates of model parameters. In fact, with continuous variables, we can *saturate* a model and estimate up to as many parameters as we have observations, but then we are basing inference on those parameters on a single measurement. This is almost never a good idea.
+
+## Model complexity
+
+Unsurprisingly, there is a limit in the number of parameters we can estimate based on the sample size.  This means we only have a certain number of *degrees of freedom* we can use to estimate parameters.  Part of the hard work when we have many variables is to figure out how we want to "spend" those degrees of freedom before we collect any data and fit models.
+
+One thing you will need to decide is the relative of importance of different variables.  For important variables (i.e., ones you think have a large effect) with unknown relationships with the response variable you will likely want to spend more degrees of freedom.  For example, you might want to allow for nonlinear relationships for certain important variables where you have very little *a priori* information on what the relationship will look like.  Depending on sample sizes, you can often justify spending no more than 3-5 degrees of freedom to allow for a nonlinear relationship.  For less important variables or variables that are known to have simpler relationships, you can spend fewer degrees of freedom and use linear relationships for those variables.
+
+The extra degrees of freedom for nonlinear relationships count in your estimate of $p$, the number of parameters to estimate, which is why the first step above was to figure out how many parameters you can justifiably estimate in one model.  You first figure out how many parameters you can estimate in total and then you figure out how you want to divvy up that number.
+
+# Model (variable) selection
+
+Unlike the impression you may have been given by the literature in your field, model selection is not a standard part of fitting a model.  In many cases, we can fit a single model and report results from it.  There is no reason to be taking things out of the model because their effect estimates or relationship estimates are not "significant".  Taking an effect out of the model amounts to setting effects to exactly 0; this is a huge assumption and one you should think about seriously if you hypothesized there would be some relationship.
+
+## Problems with model selection
+
+There are many known problems with model selection, whether done using p-values or AIC or using some other criterion.  A few of the most discussed ones are listed below.  Notice that the 9th is that using model selection lets us skip the hard thinking step that is so important.
+
+1. It yields R-squared values that are badly biased to be high.
+
+2. The F and chi-squared tests quoted next to each variable on the printout do not have the claimed distribution.
+
+3. The method yields confidence intervals for effects and predicted values that are falsely narrow; see Altman and Andersen (1989).
+
+4. It yields p-values that do not have the proper meaning, and the proper correction for them is a difficult problem.
+
+5. It gives biased regression coefficients that need shrinkage (the coefficients for remaining variables are too large; see for example @tibshirani1996).
+
+6. It has severe problems in the presence of collinearity.
+
+7. It is based on methods (e.g., F tests for nested models) that were intended to be used to test prespecified hypotheses.
+
+8. Increasing the sample size does not help very much; see Derksen and Keselman (1992).
+
+9. It allows us to not think about the problem.
+
+10. It uses a lot of paper \emoji{wink}.
+
+## Inference versus prediction
+
+Whether model selection is something you should be doing at least partially depends on the goal of your analysis. For predictive models, we care less about estimating relationships and more about *useful predictors*, so the issues with post-selection inference discussed above are less of an issue.  
+
+In addition, if your work is totally exploratory, you may be able to justify using some model selection methods.  However, you will need to be cautious about how you interpret the results.  Remember that statistics alone can't discover ecological truths.  Any model selection where you report only some "final" model needs to be accompanied by some analysis of the uncertainty for the variables in that model as well as uncertainty around including those variables over others in the first place.  This can be done using bootstrapping or cross-validation techniques.  For example, in Regression Modeling Strategies chapter 5 researchers wanted to rank the "most important" predictors in a model and so uncertainty in ranks was captured via bootstrapping: http://hbiostat.org/doc/rms.pdf#section.5.4. Additionally, @tredennick2021 and @fieberg2015 discuss these concepts in an approachable and practical way.
+
+If your goal is to make predictions you may find the book “Introduction to Statistical Learning” (ISL) by James et al. a useful place to start, since predictive modeling is very different than the modeling we are doing in this class.  ISL is written for applied scientists and available as a PDF online, http://faculty.marshall.usc.edu/gareth-james/.
+
+## Competing models
+
+Finally, another approach that generally falls under the "model selection" header is the Burnham and Anderson style approach of competing models and making multimodel inference (MMI) [@burnham2004]. Structural equation modeling also fits inside this umbrella of competing models.
+
+In multimodel inference you carefully define different models to represent different *a priori* hypotheses.  This does not mean you blindly fit all possible models and say "hypothesis 1: $Y$ is related to $X_1$; hypothesis 2: $Y$ is related to $X_1$ and $X_2$" and so on. Instead each model means something practically important in your field and should be based on theory.  
+
+You can see an example of this approach in @burnham2011, which you should read if you are considering using this approach.  The paper also goes through some common issues with how people use MMI that is a must-read for practitioners.  You can find the paper at http://www.ericlwalters.org/Burnham_etal_2011.pdf.  Note issues with some types of model averaging, though (not required in MMI), in @cade2015.
+
+Burnham and Anderson’s 2002 book contains a lot of great information if you want to use MMI.  One of the good things about it is how much they focus on the hard thinking part of this analysis.  A lot of up-front work is needed to even attempt such an approach.  I believe you can find this book online, but it's also available at the OSU library.
+
+# References
 
 
