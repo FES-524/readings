@@ -20,7 +20,9 @@ knitr::opts_chunk$set(
     fig.show = 'hold',
     fig.align = 'center'
 )
+set.seed(22305)
 
+library(tidyverse)
 library(here)
 
 ```
@@ -133,4 +135,122 @@ knitr::include_graphics(here("images/ts_time_eg1.png"))
 ```{r time-eg2, fig.cap="Example dataset with three groups all measured repeatedly through time with the relevant variance in the means for example question 2 circled."}
 knitr::include_graphics(here("images/ts_time_eg2.png"))
 ```
+
+
+## Questions that don't involve time
+
+If the research question doesn’t involve the repeated factor directly, the analysis can likely be simplified.  If there is not explicit interest in the repeated factor, it may be that the repeated measurements were really a type of subsampling.
+
+- Example 3: How did groups differ in mean response by the end of the study? In this case, while many measurements were taken only the last measurement is of interest.  The other measurements are not needed and don't need to be part of the analysis. Similarly, if the question is worded as one that involves only overall differences among groups, the repeated measures could be averaged over like we did in week 2.
+
+- Example 4: How did the overall change from the beginning to end of the study differ among groups? To answer this question, we could calculate the difference between the first and last measurement for every observation and analyze that as the response variable.  Then we would be back to a simple analysis.  A second option would be to only work with the first and last repeated measures.  While the analysis would still need to account for repeated measures, things are simpler when there are only two repeated measures.  
+
+```{r notime-eg1, fig.cap="Example dataset with three groups all measured repeatedly through time with the relevant variance in the means for example question 3 circled."}
+knitr::include_graphics(here("images/ts_notime_eg1.png"))
+```
+
+
+While the question I wrote above is about the change over the duration of the study, sometimes we will have research questions about differences in means among groups at the end of the study *after accounting for the initial measurement*. The initial measurement would be considered the "baseline".  This baseline variable should be included as a covariate in a model using the final measurement as the response variable rather than taking a difference between the first and last measurement and using that as the response variable.  The difference is a “baseline as covariate” model as compared to a “change from baseline” study.  If relevant to you, a place to start reading about problems with change from baseline is at https://hbiostat.org/bbr/md/change.html#whats-wrong-with-change-in-general.
+
+The take home message from these examples is that if we can collapse over the repeated measurements in some way and can still answer the research question, you may be able to simplify your analysis.  However, simplifying the analysis is not required.
+
+# Assumptions in repeated measures models
+
+Many of the assumptions of models we can use for analyzing data from repeated measures designs should look familiar.
+
+## Independence of subjects
+
+We assume that the subjects, the study units that were repeatedly measured, are independent.  This is the same assumption we made about the levels of random factors in previous analyses (e.g., blocks in earlier weeks).  This means that, in our previous analyses, we assumed that the physical units that were closer in space were more alike than physical units that were farther apart.  We usually use scientific expertise to justify this assumption. For example, if the minimum distance between two blocks is large enough that we can consider them independent, then it may be reasonable to assume that blocks even further apart are also independent. If this isn’t a reasonable assumption, then you will need a more complex analysis than what we are learning in this class.
+
+## Within subject dependence
+
+For models we have fit so far this term, we assumed that the errors were independent after accounting for other variables that have a systematic effect on the response variable.  In studies we are discussing this week, we now expect that the within subject errors are correlated in some way.  This means that after accounting for all other variables in the model, we think there is still some sort of pattern of dependence in the errors.
+
+The models we will learn in this class assume that this within subject dependence is shared across all subjects, regardless of if they are in different groups or had different protocols applied.  If this isn’t reasonably true you will need more complicated analysis tools than what you will see in this class.
+
+### Nested designs and dependence
+
+As discussed earlier, nested designs are a type of repeated measurement.  We were assuming that there would be some sort of dependence among observations taken within the larger physical unit.  However, we assumed that the effect of the larger unit was systematic, which involves a very particular type of correlation.  Using a mixed model for analysis was a way to model that type of correlation so the model errors were independent.
+
+We will formalize the kind of correlation that is implied by a mixed model in the second reading of the week and during lecture.
+
+## Constant variance
+
+Constant variance among errors of the repeated factors is still an assumption when doing an analysis of repeated measures data using some sort of linear model.  It is not uncommon to need to relax this assumption.
+
+For example, think about a study where some sort of extreme vegetation control is done at the beginning of the study and then vegetation cover is measured through time.  In the early years we would expect cover to be less variable, since we removed vegetation cover.  In later years, as things start to recover, we would expect to start seeing more variability in vegetation cover.  In a study like this we can pretty much expect that we will need to relax the assumption of constant variance of errors through time.  
+
+# Correlation
+
+Now that we have discussed repeated measures in general, let’s start to think about correlations more formally.
+
+Take a look at the schematic below.  It shows three observations taken on a single subject, along with their errors.  Can we calculate a correlation between the first two errors,  $\epsilon_1$ and $\epsilon_2$?
+
+
+```{r eg-rinnov, fig.cap="Example of repeated measurements through time on a subject with a mean of 0. The deviations from zero are assume to be random noise."}
+
+df <- tibble(
+    base = rep(0, 3),
+    err = c(0.2, -0.34, 1),
+    time = 1:3,
+    half = base + err/2,
+    lab = c("epsilon[1]", "epsilon[2]", "epsilon[3]")
+)
+
+ggplot(data = df, aes(x = time, y = base)) +
+    geom_line(linetype = "dashed", color = "grey") +
+    geom_point(color = "grey") +
+    geom_point(aes(y = base + err), size = 4) +
+    geom_line(aes(y = base + err)) +
+    geom_segment(
+        aes(
+            x = time,
+            y = base,
+            xend = time,
+            yend = base + err
+        ),
+        linetype = "dotted"
+    ) +
+    geom_text(
+        aes(y = base + half, label = lab),
+        parse = T, nudge_x = 0.05
+    ) +
+    theme_classic() +
+    ylab("")
+    
+```
+
+
+The answer is no. We need more than just two measurements to calculate a correlation. Recall that a correlation is calculated between two groups. In this example, group one is $\epsilon_1$ and group 2 is $\epsilon_2$, so we really only have *one* measurement. A variance cannot be calculated for one measurement, and correlation is a standardized co-variance. So how do we estimate correlation in the errors? As usual, that depends.
+
+To calculate correlation between any two positions, we need to have multiple observations of those positions.  In other words, we need multiple subjects.  This is a reason we assume the correlation is the same among subjects.  To calculate correlations among errors for position 1 vs position 2, we’d use the errors for all the subjects at time points 1 and 2. Alternatively, we would need a *model* for the correlation in order to use the errors for a single subject to estimate a correlated errors model. For example, in time series analysis, we might assume that any two errors at the same distance from each other in time have the same correlation. Then, we could use the pairs of residuals that are all at a distance of 1 to estimate that correlation.
+
+\begin{table}
+    \label{tab:ar1}
+    \caption{Example of using pairs of errors that are spaced at the same distance to estimate a model-based correlation.}
+    \begin{tabular}{cc}
+    \epsilon_1 & epsilon_2\\
+    \epsilon_2 & epsilon_3\\
+    \epsilon_3 & epsilon_4\\
+    $\vdots$ & $\vdots$
+    \end{tabular}
+\end{table}
+
+## Positive correlation
+
+With positive correlation (i.e., correlation > 0), errors are more alike within subjects than between subjects.  Positive correlation is also indicated when errors closer in time or space are more alike than errors farther apart.
+
+We have been assuming positive correlation among observations for blocked and other nested designs. We assume there is some sort of systematic difference among study units; an “average” effect of the unit.  In the examples I give I will show the correlations among observations instead of errors in order to try to clarify what positive correlation means.
+
+
+```{r sp-corr, fig.cap="Example of correlation in space."}
+knitr::includegraphics(here("images/spatial_corr_eg.png"))
+```
+
+
+
+
+
+
+
 
