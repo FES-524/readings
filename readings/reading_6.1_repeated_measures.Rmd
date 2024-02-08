@@ -1,0 +1,136 @@
+---
+title: "FES 524: Natural Resources Data Analysis"
+subtitle: "Reading 6.1: Repeated measures"
+output:
+    bookdown::pdf_document2
+toc: true
+urlcolor: "cyan"
+linkcolor: "blue"
+toccolor: "blue"
+bibliography: ../references.bib
+header-includes:
+    \usepackage{bm}
+---
+
+```{r include=FALSE}
+
+knitr::opts_chunk$set(
+    echo = F,
+    out.width = "60%",
+    fig.show = 'hold',
+    fig.align = 'center'
+)
+
+library(here)
+
+```
+
+
+# Introduction to repeated measures
+
+We refer to a study as having a repeated measures design when the investigators repeatedly measured a study unit.  Given this definition, you should recognize that we have already been working with some simple repeated measures designs for a couple weeks now.  Any time we use sub-sampling, like sampling multiple trees within a stand, we have repeatedly measured a study unit.
+
+Measurements of the same study unit across time is what most people think of when they hear the term *repeated measures*.  However, we can and do have repeated measures through space.  This week's lab example is a study with repeated measures in space.  
+
+The big difference in what we are going to be doing this week compared to what we have been doing since we began working with mixed models in week 3 is that we will now assume some sort of pattern to the correlation among repeated measurements.  Usually, with a repeated measures design in space or time, we believe the distance among measurements (in terms of distance in time, space, or space-time \includegraphics[height=12pt]{../images/einstein.jpeg}) is related to the magnitude of correlation between the measurements.  We most often think measurements closer in space or time are more alike, but in some studies we are concerned that things closer in space or time are actually less alike.  We will see examples later to clarify what this all means.
+
+Having repeated measures can complicate the analysis.  We saw the first complication when we started using random effects to deal with simple repeated measures designs like we had last week.  Allowing for different types of correlation patterns complicates things even further.  So why would we use a repeated measures design?
+
+First, we might have a question involving the repeated measurements, such as how some mean response changes over time.  Second, we may use a so-called "within-subject" design to reduce variation.  This is common for time series repeated measurements.  If a researcher samples different subjects every year they likely have increased variability due to always using different subjects.  In addition, variability due to years and variability due to subjects are confounded.  Instead, researchers often choose to sample the same subject through time in order to account for subject-to-subject variability and so make more precise estimates.  Recognize that using this latter design can limit the scope of inference if one does not also sample many subjects, each sampled through time.
+
+
+## Repeated measures in time
+
+Below are three examples of studies that involve repeated measures through time.  Repeated measures through time can involve short or long time frames.  Complicated studies can involve both.
+
+- Example 1: Short time frame
+
+    - Response: Suspended sediment in water samples
+    
+    - Measured: After every storm event
+    
+    - Time frame: Over one winter
+    
+- Example 2: Longer time frame
+
+    - Response: Amount of large wood in a stream reach
+
+    - Measured: Every summer
+    
+    - Time frame: 10 years
+
+
+- Example 3: Short and longer time frames
+
+    - Response: Dissolved oxygen in water samples
+
+    - Measured: Every 5 minutes
+    
+    - Time frame: Every summer for 5 years
+
+## Repeated measures in space
+
+Studies involving soil cores are classic examples of repeated measures in space.  The study unit, the soil core, is measured multiple times throughout the core for some response variable.  This can involve only a few measurements or many measurements.
+
+- Example 1:
+
+    - Response: Carbon-to-nitrogen ratio
+
+    - Measured: At 3 depths
+
+    - Total core length: 60 cm
+
+- Example 2:
+
+    - Response: Amount fine sediment
+
+    - Measured: Every cm
+
+    - Total core length: 7 m
+
+Last week's Lab example was also about repeated measures in space since study units were measured multiple times.  Multiple stands were measured in each watershed and multiple locations were measured in each stand.  See Week 5 Handout 1 if you need a reminder of that study design.  
+
+
+## Necessary study details
+
+When working with repeated measures designs we need to be able to identify:
+
+1.	The subject.  This is the study unit that was repeatedly measured.  
+
+2.	The repeated factor.  This is the factor of interest that is measured at the level of the repeated measurements.
+
+3.	I will refer to the study units that represents the replicate of the repeated factor as the repeated measurements units.  Many times the repeated measurements units are what makes up the total number of observations in the study, but does not necessarily represent a replicate. For me this is often the most difficult thing to identify in a repeated measures study.  It helps if you have used explicit naming of all physical/study units, including the units that are at the observation level.  This helps keep the factor of interest separate from the physical unit that was measured.
+
+4. Spacing of repeated measurements.  To understand what kind of correlation is possible, we need to establish if spacing among measurements is equal/approximately equal or not.
+
+# Analysis options
+
+The kind of analysis we can use when working with repeated measures depends on the research question.  For many research questions, the analysis will be more complicated than what we have done in the class thus far.  However, for certain research questions, we may be able to simplify things.  
+
+Let's go through a hypothetical study example and talk about different types of research questions.
+
+Figure \@ref(fig:ts) a plot of the estimated means from some study with repeated measurements through time.  The repeated factor is time.  There is a second factor that has three levels, represented by the different shapes.  To keep things simple as we talk about research questions, no expression of variability is included on this plot.  
+
+```{r ts, fig.cap="Example dataset with three groups all measured repeatedly through time."}
+knitr::include_graphics(here("images/ts_3groups.png"))
+```
+
+## Questions that involve time
+
+If the research question involves the repeated factor, we will need to work with an analysis option where we can account for the correlation caused by repeatedly measuring the same study unit.  Below are two examples with research questions that involve the repeated factor.
+
+
+- Example 1: What are the differences in mean response among groups at each time point? Figure \@ref(fig:time-eg1) highlights the means that might be used to answer this question for one time point.
+
+
+- Example 2: Is the recovery pattern in mean response for the other groups the same as for the control? Comparisons to answer this question will involve estimating differences in mean response across time within a group, such as the component of the figure highlighted in Figure \@ref(fig:time-eg2).  However, the way I’ve worded this really implies a question about differences in the differences in means.  Creating the comparisons of interest is more complicated for such questions.
+
+
+```{r time-eg1, fig.cap="Example dataset with three groups all measured repeatedly through time with the relevant variance in the means for example question 1 circled."}
+knitr::include_graphics(here("images/ts_time_eg1.png"))
+```
+
+```{r time-eg2, fig.cap="Example dataset with three groups all measured repeatedly through time with the relevant variance in the means for example question 2 circled."}
+knitr::include_graphics(here("images/ts_time_eg2.png"))
+```
+
