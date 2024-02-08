@@ -248,6 +248,24 @@ knitr::includegraphics(here("images/spatial_corr_eg.png"))
 ```
 
 
+```{r pos-temp-corr, fig.cap="Example of positive correlation in time. Observations that are close together in time tend to be more similar than observations that are far apart in terms of where they are relative to the mean."}
+
+df_post <- tibble(
+    y = as.double(arima.sim(
+        list(ar = 0.8),
+        n = 100
+    )),
+    time = 1:100
+)
+
+ggplot(df_post, aes(x = time, y = y)) +
+    geom_line() +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    theme_classic()
+
+```
+
 
 
 
