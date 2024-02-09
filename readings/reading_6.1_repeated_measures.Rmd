@@ -18,12 +18,15 @@ knitr::opts_chunk$set(
     echo = F,
     out.width = "60%",
     fig.show = 'hold',
-    fig.align = 'center'
+    fig.align = 'center',
+    warning = F,
+    message = F
 )
 set.seed(22305)
 
 library(tidyverse)
 library(here)
+library(patchwork)
 
 ```
 
@@ -229,9 +232,9 @@ To calculate correlation between any two positions, we need to have multiple obs
     \label{tab:ar1}
     \caption{Example of using pairs of errors that are spaced at the same distance to estimate a model-based correlation.}
     \begin{tabular}{cc}
-    \epsilon_1 & epsilon_2\\
-    \epsilon_2 & epsilon_3\\
-    \epsilon_3 & epsilon_4\\
+    $\epsilon_1$ & $\epsilon_2$\\
+    $\epsilon_2$ & $\epsilon_3$\\
+    $\epsilon_3$ & $\epsilon_4$\\
     $\vdots$ & $\vdots$
     \end{tabular}
 \end{table}
@@ -240,11 +243,11 @@ To calculate correlation between any two positions, we need to have multiple obs
 
 With positive correlation (i.e., correlation > 0), errors are more alike within subjects than between subjects.  Positive correlation is also indicated when errors closer in time or space are more alike than errors farther apart.
 
-We have been assuming positive correlation among observations for blocked and other nested designs. We assume there is some sort of systematic difference among study units; an “average” effect of the unit.  In the examples I give I will show the correlations among observations instead of errors in order to try to clarify what positive correlation means.
+We have been assuming positive correlation among observations for blocked and other nested designs. This is equivalent to assuming there is some sort of systematic difference among study units; an "average" effect of the unit.  Figures \@ref(fig:sp-corr) and \@ref(fig:pos-temp-corr), you can see positive correlation among observations in space and time, respectively. In Figure \@ref(fig:sp-corr), all the units within the first watershed have large measured response values, while the second watershed shows all small responses. In Figure \@ref(fig:pos-temp-corr), observations that are close in time tend to collectively be either above or below the mean, but looking at observations farther apart in time, they may be both above, below, or on above and one below with seemingly equal frequency, indicating that the correlation decays through time.
 
 
-```{r sp-corr, fig.cap="Example of correlation in space."}
-knitr::includegraphics(here("images/spatial_corr_eg.png"))
+```{r sp-corr, fig.cap="Example of correlation in space. Units measured within a watershed all more similar to one another than they are to units from different watersheds."}
+knitr::include_graphics(here("images/spatial_corr_eg.png"))
 ```
 
 
@@ -266,6 +269,83 @@ ggplot(df_post, aes(x = time, y = y)) +
 
 ```
 
+
+## Negative correlation
+
+With negative correlation (i.e., correlation < 0), errors are more alike between subjects than within subjects. Similarly, measurements or errors closer in space or time are less alike than those that are farther apart. Negative correlation is less common than positive correlation in many types of research.  
+
+One example of negative correlation is from community ecology. If species fill different niches, then a good year for one may be a bad year for the other, and vice versa. This results in negative correlations between species abundances through time, known as *compensatory dynamics*. 
+
+```{r neg-temp-corr, fig.cap="Example of negative correlation in time. Observations that are close together in time tend to be less similar than observations that are far apart in terms of where they are relative to the mean. This results in a pattern of observations that seem alternate above and below the mean, on average."}
+
+df_negt <- tibble(
+    y = as.double(arima.sim(
+        list(ar = -0.8),
+        n = 100
+    )),
+    time = 1:100
+)
+
+ggplot(df_negt, aes(x = time, y = y)) +
+    geom_line() +
+    geom_point() +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    theme_classic()
+
+```
+
+
+## Checking for correlation in the residuals
+
+We use residuals to check for dependence among errors within subjects.  If we have long time series or many observations in space we have graphical tools to assist with this.
+
+There is no rule for how many constitutes "many" for the number of within subject repeated measures, but generally if we have only very few repeated measurements like the examples in this class (3 or 4), these tools aren't particularly useful.  We will talk about an algorithm to use for when we are in a situation where we can't graphically check for autocorrelation of errors in the next reading.
+
+The tools we can use for checking for within-subject correlation of the errors depends on if we consider our repeated measures to be equally spaced or not.  Time series are often equally spaced (measuring once a week, once a year, etc.) but can be unequally spaced (measuring after every storm event).  Measurements in space are most often unequally spaced, but measuring along a soil core could involve equal spacing.
+
+When using tools to check for residual autocorrelation, we must ensure calculations are done only within subjects and not between subjects.  This can involve more complicated coding, which we will not cover in this class.  If you are in this situation, I recommend doing a lot of reading before conducting analyses.  One place to start is with this blog post, https://aosmith.rbind.io/2018/06/27/uneven-grouped-autocorrelation/. 
+
+### Equal spacing
+
+Autocorrelation function (ACF) plots can be used to check for correlation patterns among equally spaced repeated measures.  To use these plots, we need a variable that represents the spacing of measurements within each subject so R understands the order of values within each subject.  For example, if you have one measurement per subject per year, a year variable would represent the spacing of observations within subjects. 
+
+Figure \@ref(fig:acf) shows the ACF plot for the time series in Figure \@ref(fig:pos-temp-corr) compared to a *white noise* series (one without correlation).
+
+```{r acf, height = 2, out.width="100%", fig.cap="Comparison of two empirical autocorrelation functions, one with correlation in the series and the other without."}
+acf1 <- forecast::ggAcf(
+    x = df_post$y,
+    type = "correlation"
+) +
+    ggtitle("Correlation") +
+    theme_classic() +
+    ylim(c(-1, 1))
+
+acf2 <- forecast::ggAcf(
+    x = rnorm(100),
+    type = "correlation"
+) +
+    ggtitle("No correlation") +
+    theme_classic() +
+    ylim(c(-1, 1))
+
+acf1 + acf2
+```
+### Unequal spacing
+
+When observations are unequally spaced we can use semivariograms of the residuals to check for autocorrelation.  You will hear about semivariograms most often in spatial statistics, but these are also appropriate to use if you have unequal spacing of measurements through time as well.   
+
+In order to use semivariograms, you need one or more continuous variables that represent the distance between observations.  This could be Julian day, for example, if you measured the same subject on a variety of different days but the time between days is not constant.  Latitude and longitude are common distance variables for measurements in space.
+
+
+
+```{r fig.cap="Example semivariogram for spatial data that is correlated in space."}
+library(sp)
+library(gstat)
+data(meuse)
+coordinates(meuse) = ~x+y
+vgm1 <- variogram(log(zinc)~1, meuse)
+plot(vgm1)
+```
 
 
 
