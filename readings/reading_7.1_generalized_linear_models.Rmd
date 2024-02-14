@@ -96,7 +96,7 @@ so the GLM can be written as
 $$
 \theta_i = g(\mu_i) = \eta_i 
 $$
-where I am using $\eta_i$ to be the linear predictor of the $i^\text{th}$ observation. Since we know that $\theta = \mu$ for the normal distribution, this tells us that the canonical link for a normal model is the identity link (i.e., the "do nothing" or "multiply by 1" function). It is standard to drop the extra notation and not even write the link function, as we have been doing so far this term, even though it is there in theory (lurking...).
+where I am using $\eta_i$ to be the linear predictor of the $i^\text{th}$ observation. Since we know that $\theta = \mu$ for the normal distribution, this tells us that the canonical link for a normal model is the identity link (i.e., the "do nothing" or "multiply by 1" function). It is standard to drop the extra notation and not even write the link function, as we have been doing so far this term, even though it is there in theory (lurking... ).
 
 # GLM structure and overview
 
