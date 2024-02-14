@@ -142,7 +142,7 @@ Continuous, symmetric response variables are what we have been talking about so 
 
 ### Positive continuous and right-skewed
 
-Positive, continuous, right-skewed variables are what we discussed in class 4.2.  These are data with no 0 values. The log-normal distribution is one option for a probability model for this kind of variable, where we use a log-transformation on the response variable and then assume normality.  You learned all about the log-normal distribution in reading 4.2. The gamma distribution is another option, which you may or may not have seen before.
+Positive, continuous, right-skewed variables are what we discussed reading 4.2.  These are data with no 0 values. The log-normal distribution is one option for a probability model for this kind of variable, where we use a log-transformation on the response variable and then assume normality.  You learned all about the log-normal distribution in reading 4.2. The gamma distribution is another option, which you may or may not have seen before.
 
 The gamma distribution is a two-parameter distribution usually denoted $\text{Gamma}(\alpha, \beta)$, where $\alpha$ is a *shape* parameter and $\beta$ is a *rate* parameter. The exponential distribution is a special case of the gamma distribution when $\alpha = 1$. You can see how these parameters influence the shape of the curve using the desmos graph: [https://www.desmos.com/calculator/vk2tqrxpk5](https://www.desmos.com/calculator/vk2tqrxpk5). To recast this as an EDM, we reparameterize in terms of the mean and dispersion (Table \ref{tab:mean-var}).
 
