@@ -131,6 +131,57 @@ These within-subject marginal correlations from a linear mixed model must be str
 
 The correlation matrix that represents the marginal correlation induced by the mixed model is shown in \ref{eq:vc-cs-corr} where $\rho$ is constrained to be positive.
 
+
+```{r}
+m_1 <- diag(1, nrow = 5)
+m_1[upper.tri(m_1)] <- 0.5
+m_1[lower.tri(m_1)] <- 0.5
+
+df_vc <- tibble(
+    error_r = rep(paste0("&epsilon;<sub>i", 1:5, "</sub>"), 5),
+    error_c = rep(paste0("&epsilon;<sub>i", 1:5, "</sub>"), each = 5),
+    corr = as.vector(m_1),
+    col = ifelse(corr == 1, "black", "brown")
+)
+
+spot.theme <- list(
+  theme_classic(),
+  scale_x_discrete(position = "top"),
+  theme(axis.ticks.x=element_blank(), 
+        axis.text.x.top=ggtext::element_markdown(size = 19)),
+  theme(axis.ticks.y=element_blank(), axis.text.y=ggtext::element_markdown(size = 19)),
+  theme(axis.line=element_blank()),
+  theme(text = element_text(size = 22)),
+  theme(legend.position = "none"),
+  theme(plot.margin = unit(c(10,10,10,10), "mm")),
+  scale_size_continuous(range = c(10, 15)),
+  xlab(""),
+  ylab("")
+  )
+
+ggplot(df_vc, aes(x = error_c, y = error_r)) +
+    geom_point(aes(size = corr, color = col)) +
+    scale_y_discrete(limits=rev) +
+    spot.theme +
+    scale_color_manual(values = c("black", "brown"))
+```
+
+```{r}
+m_vc <- diag(1, nrow = 3) %x% m_1
+
+subj <- rep(rep(1:3, each = 5), 15)
+repm <- rep(rep(1:5, 3), 15)
+
+df_vc_all <- tibble(
+    error_r = rep(paste0("&epsilon;<sub>i", 1:5, "</sub>"), 5),
+    error_c = rep(paste0("&epsilon;<sub>i", 1:5, "</sub>"), each = 5),
+    corr = as.vector(m_1),
+    col = ifelse(corr == 1, "black", "brown")
+)
+```
+
+
+
 ## Compound symmetry
 
 All the remaining correlation structures we will talk about are correlations of the conditional errors, the leftover correlation after we take into account both the fixed and random effects from a mixed model. Compound symmetry is the simplest kind of correlation structure.  When using a compound symmetry structure we calculate a single correlation, which is shared among all within-subject repeated measurements.

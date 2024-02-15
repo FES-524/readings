@@ -150,7 +150,7 @@ The gamma distribution is a two-parameter distribution usually denoted $\text{Ga
 
 Counts are discrete, integer values that can include zero. For example, we could be counting seedlings in a plot or the number of bird nests in a forest stand. The most common distributions used for modeling counts in ecology are the *negative binomial* and the *Poisson* distributions.
 
-
+It is common to have counts where the counting effort varies.  The effort could be the amount of time spent counting or the size of the area counted in.  This kind of variable can still be treated as a count if effort is used as an offset.  We will talk about offsets more next week.
 
 
 
