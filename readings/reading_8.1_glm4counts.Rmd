@@ -70,6 +70,10 @@ The Poisson distribution is most often useful to describe count distributions wi
 
 The negative binomial and Poisson distributions are related to each other.  It turns out the Poisson distribution is a special case of the negative binomial distribution.  We will work through a basic proof of this in class.
 
+## Probability model
+
+The systematic component of the probability model for count data will look similar for both types of error distributions.
+
 
 
 
