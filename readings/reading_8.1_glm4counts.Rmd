@@ -1,0 +1,78 @@
+---
+title: "FES 524: Natural Resources Data Analysis"
+subtitle: "Reading 8.1: Generalized linear models for count data"
+output:
+    bookdown::pdf_document2
+toc: true
+urlcolor: "cyan"
+linkcolor: "blue"
+toccolor: "blue"
+bibliography: ../references.bib
+header-includes:
+    \usepackage{bm}
+    \usepackage{tablefootnote}
+---
+
+```{r include=FALSE}
+
+knitr::opts_chunk$set(
+    echo = F,
+    out.width = "60%",
+    fig.show = 'hold',
+    fig.align = 'center',
+    warning = F,
+    message = F
+)
+set.seed(22305)
+
+library(tidyverse)
+library(here)
+library(patchwork)
+
+```
+
+
+# Generalized linear models for counts
+
+In this reading, we start by reviewing the count distributions we discussed in week 7 reading 1.
+
+Counts are discrete, integer values that can include 0. For example, we could count the number of seedlings in a plot or the number of inflorescences on a plant. In practice, it is common to have counts where the effort to take the counts varies between observations.  This effort could be the amount of time spent counting or the area counted in, for example.  Any analysis should take into account varying effort in some way, often by making inference to a count per unit effort (e.g., count per square meter).
+
+The most commonly used distributions for analyzing counts in natural resources are the negative binomial and the Poisson distributions.
+
+## Negative binomial distribution
+
+The negative binomial distribution is a two parameter distribution, but unlike the normal distribution, the variance is related to the mean. In the mean-variance relationship shown in Table \ref{tab:mean-var}, you can see that we expect the variance to increase quadratically with the mean.
+
+\begin{table}
+    \center
+    \caption{Mean-variance relationships for distributions commonly used to model counts.}
+    \begin{tabular}{lcc}
+    \textbf{Distribution} & \textbf{Mean} & \textbf{Variance}\\
+    \hline
+    Negative binomial & $\mu$ & $\mu + \mu^2/\psi$ \\
+    Poisson & $\mu$ & $\mu$
+    \end{tabular}
+    \label{tab:mean-var}
+\end{table}
+
+The negative binomial often works well for modeling counts in ecology.  This is because the distribution tends to work well for "clustered" counts, where the presence of an organism is related to the presence of other organisms.  Such data often have many zero or low counts as well as some very high counts. This results in high *dispersion* that distributions like the Poisson may not account for.
+
+The example in reading 7.1 was a situation with clustered counts with very high counts of seedlings in areas with many parent trees but having no or few seedlings when there are few parent trees.  In this example there are either a lot of seedlings together or there are very few seedlings present.
+
+Since the the variance depends on the mean for this distribution, we can technically have problems where the variance in the data is larger or smaller than the variance based on the distribution.  However, given this distribution has a scale parameter, $\psi$, overdispersion like in single parameter distributions isn't possible.  Any evidence of overdispersion (i.e., value of overdispersion > 1) will indicate a general lack of fit of the model to the data.  We will discuss this a bit more later in this reading.  
+
+## Poisson distribution
+
+The Poisson distribution is a one parameter distribution.  If we know the mean, we know the variance.  In Table \ref{tab:mean-var}, you can see that we expect the variance to increase linearly with the mean since the variance is *equal* to the mean. Overdispersion, or *extra-Poisson variation*, is very common when using Poisson models in practice since it is another one parameter distribution (as was the binomial distribution).
+
+The Poisson distribution is most often useful to describe count distributions with limited ranges.  The distribution can be used for situations with overall very high counts or overall very low counts but will not work well when there are both very low and very high counts.  For this reason, the Poisson distribution is rarely useful for ecological count data.  As I mentioned last week, I have seen the Poisson distribution work for species richness data when the number of species possible was limited (e.g., 0-5).
+
+The negative binomial and Poisson distributions are related to each other.  It turns out the Poisson distribution is a special case of the negative binomial distribution.  We will work through a basic proof of this in class.
+
+
+
+
+
+
+
